@@ -8,8 +8,24 @@
   <script type="text/javascript" src="p5.dom.js"></script>
   <script type="text/javascript" src="vehicle.js"></script>
   <script type="text/javascript" src="sketch.js"></script>
-  <style type="text/css"> body { margin: 0; padding: 0; } </style>
+  <link rel="stylesheet" href="main.css">
 </head>
 <body>
+  <h2>This is a genetic algorithm that I was learning</h2>
+  <div id="main_canvas"></div>
+  <div id="functions_wrapper">
+    <div id="food_options">
+	  <ul>
+	    <li><input type="text" size="3" id="food_prob" value="0.25">Prob. of food appearing</input></li>
+	    <li><input type="text" size="3" id="max_food" value="200">Max food allowed</input></li>
+	  </ul>
+	</div>
+	<div id="poison_options">
+	  <ul>
+	    <li><input type="text" size="3" id="poison_prob" value="0.05">Prob. of poison appearing</input></li>
+	    <li><input type="text" size="3" id="max_poison" value="100">Max poison allowed</input></li>
+	  </ul>
+	</div>
+  </div>
 </body>
 </html>

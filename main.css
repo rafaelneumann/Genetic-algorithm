@@ -1,0 +1,36 @@
+body {
+  margin: 0px;
+  padding: 0px;
+}
+
+h2 {
+  text-align: center;
+  padding: 1px;
+  margin: 2px;
+}
+
+ul {
+  list-style: none;
+  padding: 1px;
+  margin: 0px;
+  margin-left: 3px;
+}
+
+#main_canvas {
+  margin: auto;
+  text-align: center;
+}
+
+#functions_wrapper {
+  width: auto;
+}
+
+#food_options {
+  width: 250px;
+  float: left;
+}
+
+#poison_options {
+  width: 250px;
+  float: left;
+}

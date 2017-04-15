@@ -7,15 +7,16 @@ var poison = [];
 var my_canvas;
 var number_of_food_elements = 50;
 var number_of_poison_elements = 10;
-var population_size = 20;
-var max_poison_elements = 100;
+var initial_population_size = 20;
+var max_poison_allowed = 100;
+var max_food_allowed = 100;
 
 // Setup for p5.js
 function setup() {
-  my_canvas = createCanvas(windowWidth, windowHeight);
-
+  my_canvas = createCanvas(windowWidth - 10, windowHeight - 100);
+  my_canvas.parent('main_canvas');
   // Create vehicles
-  for (let i = 0; i < population_size; i++) {
+  for (let i = 0; i < initial_population_size; i++) {
     let x = random(width);
     let y = random(height);
     vehicles.push(new Vehicle(x, y));
@@ -88,15 +89,26 @@ function draw() {
     //noLoop();  
   } else {
     // Need more food? ;)
-    if (random() < 0.15) {
+    let prob = float(document.getElementById("food_prob").value);
+	max_food_allowed = int(document.getElementById("max_food").value);
+	
+	if (random() < prob && food.length < max_food_allowed) {
       add_food();
     }
   
     // More poison?
-    if (random() < 0.05 && poison.length < max_poison_elements) {
+	prob = float(document.getElementById("poison_prob").value);
+	max_poison_allowed = int(document.getElementById("max_poison").value);
+	if (random() < prob && poison.length < max_poison_allowed) {
       add_poison();
     }
   }
+  
+  // Population info
+  stroke(255);
+  fill(255);
+  textSize(22);
+  text("Population: " + vehicles.length, 1, 20);
 }
 
 // Other functions
