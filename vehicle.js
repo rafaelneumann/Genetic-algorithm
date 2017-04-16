@@ -9,25 +9,32 @@ function Vehicle(x, y, dna) {
   this.maxspeed = 5;
   this.maxforce = 0.5;
   this.dna = [];
-  this.health = 1;
+  this.health = 10;
       
   if (dna === undefined) {
     this.dna[0] = random(-4, 4); // food behavior
     this.dna[1] = random(-4, 4); // poison behavior
     this.dna[2] = random(10, 100); // food perception
     this.dna[3] = random(10, 100); // poison perception
+	this.dna[4] = random(0, 1); // prob of fight
+	this.dna[5] = random(0, 1);// strength
     this.health = 1;
   } else {
     this.dna[0] = dna[0] + random(-1, 1);
     this.dna[1] = dna[1] + random(-1, 1);
     this.dna[2] = dna[2] + random(-10, 10);
     this.dna[3] = dna[3] + random(-10, 10);
+	this.dna[4] = dna[4] + random(-0.1, 0.1);
+	this.dna[5] = dna[5] + random(-0.1, 0.1);
     
-    //this.dna[2] = this.dna[2] > 100 ? 100 : this.dna[2]
-    this.dna[2] = this.dna[2] < 10 ? 10 : this.dna[2];
-    //this.dna[3] = this.dna[3] > 100 ? 100 : this.dna[3];
-    this.dna[3] = this.dna[3] < 10 ? 10 : this.dna[3]; 
+	this.dna[0] = constrain(this.dna[0], -4, 4);
+	this.dna[1] = constrain(this.dna[1], -4, 4);
+    this.dna[2] = constrain(this.dna[2], 10, 100);
+	this.dna[3] = constrain(this.dna[3], 10, 100);
+	this.dna[4] = constrain(this.dna[4], 0, 1);
+	this.dna[5] = constrain(this.dna[5], 0, 1);
   }
+  
   // METHODS
   
   // Apply a force
@@ -38,7 +45,7 @@ function Vehicle(x, y, dna) {
 
   // Apply the behaviors to the creature
   this.behavior = function(good, bad) {
-    let steerG = this.eat(good, 0.2);
+    let steerG = this.eat(good, 0.5);
     let steerB = this.eat(bad, -0.5);
     
     steerG.mult(this.dna[0]);
@@ -79,7 +86,8 @@ function Vehicle(x, y, dna) {
   
   // Clone or reproduce this creature sometimes;
   this.clone_me = function() {
-    if (random() < 0.001) {
+    if (random() < 0.01 && this.health > 20) {
+	  this.health -= 10;
       return new Vehicle(this.position.x, this.position.y, this.dna.slice());
     } else {
       return null;
@@ -112,21 +120,29 @@ function Vehicle(x, y, dna) {
     endShape(CLOSE);
     
     noFill();
-    strokeWeight(2);
+    strokeWeight(1);
     
-    // Food stuff
-    stroke(0, 255, 0);
-    line(0, 0, 0, -this.dna[0] * 20);
-    ellipse(0, 0, this.dna[2] * 2);
-    
-    // Poison stuff
-    stroke(255, 0, 0);
-    line(0, 0, 0, -this.dna[1] * 20);
-    ellipse(0, 0, this.dna[3] * 2);
-    
-    pop();
+	if (document.getElementById("debugging_input").checked) {		
+		// Food stuff
+		stroke(0, 255, 0);
+		line(0, 0, 0, -this.dna[0] * 20);
+		ellipse(0, 0, this.dna[2] * 2);
+		
+		// Poison stuff
+		stroke(255, 0, 0);
+		line(0, 0, 0, -this.dna[1] * 20);
+		ellipse(0, 0, this.dna[3] * 2);
+		
+		// Strengh stuff
+		stroke(0, 0, 255);
+		ellipse(0, 0, this.dna[5] * 100);
+		
+		// Health stuff
+		stroke(255, 255, 0);
+		ellipse(0, 0, this.health * 10);
+	  }
+	  pop();
   }
-  
   // Eats an element in the list (food or poison)
   this.eat = function(list, nutritional_value) {
     let record = Infinity;
@@ -151,6 +167,35 @@ function Vehicle(x, y, dna) {
     
     return createVector(0, 0);
   }
+  
+  // Fight!
+  this.fight = function(list, index_of_me) {
+	let prob_of_fight = this.dna[4];
+	let my_strength = this.dna[5];
+	for (let i = 0; i < list.length; i++) {
+	  // is it me?
+	  if (i === index_of_me) {
+		continue;
+	  }
+	  
+	  let distance = this.position.dist(list[i].position);
+	  let their_strengh = list[i].dna[5];
+	  
+	  if (distance < 20 && random() < prob_of_fight) {
+        total_fights += 1;
+		if (my_strength > their_strengh) {
+		  this.health += 0.35 * list[i].health;
+		  list[i].health *= 0.5;
+		} else {
+		  list[i].health += 0.35 * this.health;
+		  this.health *= 0.5;
+		}
+	  }	else { // no figth scenario
+		return 0;
+	  }
+	}
+	  
+  }
 
   // A method that calculates a steering force towards a target
   // STEER = DESIRED MINUS VELOCITY
@@ -171,8 +216,8 @@ function Vehicle(x, y, dna) {
 
   // Method to update location
   this.update = function() {
-    // Decrease health
-    this.health -= 0.003;
+    // Decrease health according to strength
+    this.health -= this.dna[5] * 0.01 + 0.001;
     
     // Update velocity
     this.velocity.add(this.acceleration);

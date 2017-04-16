@@ -7,9 +7,10 @@ var poison = [];
 var my_canvas;
 var number_of_food_elements = 50;
 var number_of_poison_elements = 10;
-var initial_population_size = 20;
+var initial_population_size = 50;
 var max_poison_allowed = 100;
 var max_food_allowed = 100;
+var total_fights = 0;
 
 // Setup for p5.js
 function setup() {
@@ -60,13 +61,17 @@ function draw() {
     ellipse(poison[i].x, poison[i].y, 8);
   }
 
+  let total_health = 0;
+  
   // Call the appropriate behavior for our agents
   for (let i = 0; i < vehicles.length; i++) {
+    total_health += vehicles[i].health;
     vehicles[i].behavior(food, poison);
     vehicles[i].boundaries();
     vehicles[i].update();
     vehicles[i].display();
-    
+	vehicles[i].fight(vehicles, i);
+	
     // Clones the creature with a probability built into the class Vehicle
     let child = vehicles[i].clone_me();
     if (child !== null) {
@@ -109,6 +114,10 @@ function draw() {
   fill(255);
   textSize(22);
   text("Population: " + vehicles.length, 1, 20);
+  text("Total health: " + nf(total_health, 0, 2), 1, 40);
+  text("Total food: " + food.length, 1, 60);
+  text("Total poison: " + poison.length, 1, 80);
+  text("Total fights: " + total_fights, 1, 100);
 }
 
 // Other functions
